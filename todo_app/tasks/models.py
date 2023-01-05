@@ -1,6 +1,7 @@
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from users.models import User
+from .tasks import send_email_task
 
 
 class Status(models.Model):
@@ -18,9 +19,14 @@ class Task(models.Model):
     title = models.CharField(max_length=250)
     body = models.TextField()
     assignee = models.ManyToManyField(
-        User, related_name="assignee_tasks", null=True, blank=True,
+        User,
+        related_name="assignee_tasks",
+        null=True,
+        blank=True,
     )
-    status = models.ForeignKey(Status, on_delete=models.CASCADE, related_name='status_tasks')
+    status = models.ForeignKey(
+        Status, on_delete=models.CASCADE, related_name="status_tasks"
+    )
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     last_updated_at = models.DateTimeField(auto_now=True)
 
@@ -30,11 +36,16 @@ class Task(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
+    def save(self, *args, **kwargs):
+        gmails = []
+        for assignee in self.assignee.all():
+            gmails.append(assignee.email)
+        send_email_task.delay(gmails, self.title)
+        super(Task, self).save(*args, **kwargs)
+
 
 class Picture(models.Model):
-    task = models.ForeignKey(
-        Task, related_name="images", on_delete=models.CASCADE
-    )
+    task = models.ForeignKey(Task, related_name="images", on_delete=models.CASCADE)
     image = models.FileField(
         null=True,
         blank=False,

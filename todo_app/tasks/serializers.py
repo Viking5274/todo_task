@@ -13,7 +13,7 @@ class PictureSerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     images = PictureSerializer(many=True)
-    author = serializers.ReadOnlyField(source='author.username')
+    author = serializers.ReadOnlyField(source="author.username")
 
     class Meta:
         model = Task

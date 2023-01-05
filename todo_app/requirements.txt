@@ -4,3 +4,4 @@ djangorestframework-simplejwt
 psycopg2-binary==2.9.2
 pillow
 django-cleanup
+celery[redis]

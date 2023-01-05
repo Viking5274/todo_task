@@ -13,7 +13,7 @@ services:
       - "8000:8000"
     depends_on:
       - db
-  #      - redis
+      - redis
 
   db:
     image: postgres
@@ -27,24 +27,23 @@ services:
     ports:
       - "5432:5432"
 
-#  redis:
-#    container_name: todoapp-redis
-#    image: redis:alpine
-#  celery:
-#    container_name: todoapp-celery
-#    build: .
-#    command: celery -A core worker -l info
-#    volumes:
-#      - .:/code
-#    depends_on:
-#      - redis
-#  celery-beat:
-#    build: .
-#    command: celery -A core beat -l info
-#    volumes:
-#      - .:/code
-#    depends_on:
-#      - redis
+  redis:
+    image: "redis:alpine"
+
+  celery:
+    build:
+      context: .
+    command: celery -A todo_app worker -l INFO
+    volumes:
+      - .:/code
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
 
 volumes:
   todo_db:
