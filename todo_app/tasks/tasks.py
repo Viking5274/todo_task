@@ -10,8 +10,8 @@ def send_email_task(gmails, title):
     send_mail(
         "Задача",
         message,
-        "goodnotification123",
-        [gmails],
+        'from@example.com',
+        gmails,
     )
 
     return None
