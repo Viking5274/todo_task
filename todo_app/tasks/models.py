@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from users.models import User
@@ -6,6 +5,7 @@ from users.models import User
 
 class Status(models.Model):
     name = models.CharField(max_length=50)
+    visibility = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -18,7 +18,7 @@ class Task(models.Model):
     title = models.CharField(max_length=250)
     body = models.TextField()
     assignee = models.ManyToManyField(
-        User, related_name="assignee_tasks", null=True,
+        User, related_name="assignee_tasks", null=True, blank=True,
     )
     status = models.ForeignKey(Status, on_delete=models.CASCADE, related_name='status_tasks')
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
