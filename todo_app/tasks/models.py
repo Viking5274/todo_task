@@ -37,10 +37,12 @@ class Task(models.Model):
         ordering = ["-created_at"]
 
     def save(self, *args, **kwargs):
-        gmails = []
-        for assignee in self.assignee.all():
-            gmails.append(assignee.email)
-        send_email_task.delay(gmails, self.title)
+        data = Task.objects.prefetch_related("assignee").get(id=self.pk)
+        if list(data.assignee.all()) != list(self.assignee.all()):
+            gmails = []
+            for assignee in self.assignee.all():
+                gmails.append(assignee.email)
+            send_email_task.delay(gmails, self.title, self.status.name)
         super(Task, self).save(*args, **kwargs)
 
 
@@ -59,3 +61,13 @@ class Picture(models.Model):
 
     def __str__(self):
         return self.task.title
+
+
+class Comment(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    body = models.TextField(blank=False)
+    owner = models.ForeignKey(User, related_name='comments', on_delete=models.CASCADE)
+    task = models.ForeignKey('Task', related_name='comments', on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['created']

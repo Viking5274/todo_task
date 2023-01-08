@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Task, Status, Picture
+from .models import Task, Status, Picture, Comment
 
 
 class PictureAdmin(admin.StackedInline):
@@ -15,3 +15,4 @@ class TaskAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Status)
+admin.site.register(Comment)

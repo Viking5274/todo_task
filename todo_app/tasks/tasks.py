@@ -4,9 +4,9 @@ from django.core.mail import send_mail
 
 
 @shared_task
-def send_email_task(gmails, title):
+def send_email_task(gmails, title, status):
     print(gmails)
-    message = "Вам была поставлена задача {}".format(title)
+    message = "Обновлен статус задачи: {} для задачи {}".format(status, title)
     send_mail(
         "Задача",
         message,
